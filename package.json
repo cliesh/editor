@@ -1,11 +1,11 @@
 {
   "name": "cliesh-editor",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "main": "main.js",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
+    "start:ng": "ng serve --host=0.0.0.0 --port 8020",
+    "start:electron": "electron . --port 8020",
+    "build": "ng build --prod --aot --base-href ./",
     "test": "ng test"
   },
   "private": true,
@@ -18,11 +18,13 @@
     "@angular/platform-browser": "~13.1.0",
     "@angular/platform-browser-dynamic": "~13.1.0",
     "@angular/router": "~13.1.0",
+    "electron": "^19.0.3",
     "rxjs": "~7.4.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
+    "@angular-builders/custom-webpack": "^13.1.0",
     "@angular-devkit/build-angular": "~13.1.3",
     "@angular/cli": "~13.1.3",
     "@angular/compiler-cli": "~13.1.0",
