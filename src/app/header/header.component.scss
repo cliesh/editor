@@ -1,5 +1,38 @@
 .header {
     height: 36px;
-    background: whitesmoke;
+    background: var(--title-color);
+    display: flex;
+    justify-content: space-between;
+}
+
+.drag {
+    width: 100%;
+    height: 100%;
     -webkit-app-region: drag;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    height: 36px;
+    display: inline-flex;
+
+    li {
+        vertical-align: top;
+        display: inline-block;
+        margin: 0;
+        padding: 0 10px;
+        height: 36px;
+        line-height: 36px;
+        font-size: 20px;
+        color: var(--title-menu-icon-color);
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        cursor: pointer;
+    }
+
+    li:hover {
+        background: var(--title-menu-icon-background);
+    }
 }

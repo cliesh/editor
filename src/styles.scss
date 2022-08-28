@@ -1,5 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
-@import '~monaco-editor/min/vs/editor/editor.main.css';
+@import "~monaco-editor/min/vs/editor/editor.main.css";
 
 html,
 body {
@@ -7,4 +7,10 @@ body {
     width: 100%;
     margin: 0;
     overflow: hidden;
+}
+
+:root {
+    --title-color: #3c3c3c;
+    --title-menu-icon-color: white;
+    --title-menu-icon-background: #c7c7c7;
 }

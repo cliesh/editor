@@ -11,7 +11,6 @@ function createWindow() {
     minHeight: 600,
     // mac title menu
     titleBarStyle: "hiddenInset",
-    transparent: true,
     autoHideMenuBar: false,
     frame: false,
     vibrancy: "sidebar",
@@ -46,6 +45,11 @@ function createWindow() {
       case "unmaximize":
         appWindow.unmaximize();
         appWindow.webContents.send("window", "unmaximize");
+        break;
+      case "pin":
+        isAlwaysOnTop = !isAlwaysOnTop;
+        appWindow.setAlwaysOnTop(isAlwaysOnTop);
+        appWindow.webContents.send("window", isAlwaysOnTop ? "pin" : "unpin");
         break;
       case "close":
         appWindow.close();
