@@ -1,19 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import { platform } from "os";
+import { Component, OnInit } from "@angular/core";
 import { ipcRenderer } from "electron";
+import { platform } from "os";
+import * as path from "path";
+import { EventService } from "../core/event.service";
+import { UtilsService } from "../core/utils.service";
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  selector: "app-header",
+  templateUrl: "./header.component.html",
+  styleUrls: ["./header.component.scss"]
 })
 export class HeaderComponent implements OnInit {
-
   platform: string = platform();
   isMaximize = false;
   isAlwaysOnTop = false;
 
-  constructor() { }
+  constructor(private utilsService: UtilsService, private eventService: EventService) {}
+
+  get fileName(): string {
+    const parsedPath = path.parse(this.utilsService.filePath);
+    return parsedPath.name + parsedPath.ext;
+  }
 
   ngOnInit(): void {
     // there is a delay
@@ -33,12 +40,20 @@ export class HeaderComponent implements OnInit {
         //   break;
       }
     });
-   }
+  }
+
+  reloadFromDisk(): void {
+    this.eventService.emitEvent("RELOAD_FROM_DISK");
+  }
+
+  saveToDisk(): void {
+    this.eventService.emitEvent("SAVE_TO_DISK");
+  }
 
   /**
    * set window to always on top
    */
-   alwaysOnTop(): void {
+  alwaysOnTop(): void {
     ipcRenderer.invoke("window", "pin");
     this.isAlwaysOnTop = !this.isAlwaysOnTop;
   }
@@ -58,5 +73,4 @@ export class HeaderComponent implements OnInit {
   exit(): void {
     ipcRenderer.invoke("window", "close");
   }
-
 }

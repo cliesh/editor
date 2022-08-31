@@ -4,6 +4,9 @@ let appWindow;
 let isAlwaysOnTop = false;
 
 function createWindow() {
+  const pathIndex = process.argv.indexOf("--path") + 1;
+  const path = process.argv[pathIndex];
+
   appWindow = new BrowserWindow({
     width: 850,
     height: 600,
@@ -18,7 +21,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      webSecurity: false
+      webSecurity: false,
+      additionalArguments: ["--path", path]
     }
   });
 
@@ -31,6 +35,17 @@ function createWindow() {
   } else {
     appWindow.loadFile("./dist/index.html");
   }
+}
+
+app.whenReady().then(() => {
+  createWindow();
+
+  app.on("activate", () => {
+    console.log("activate");
+    if (BrowserWindow.getAllWindows().length === 0) {
+      appWindow = createWindow();
+    }
+  });
 
   ipcMain.handle("window", async (event, arg) => {
     switch (arg) {
@@ -54,15 +69,6 @@ function createWindow() {
       case "close":
         appWindow.close();
         break;
-    }
-  });
-}
-
-app.whenReady().then(() => {
-  createWindow();
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      mainWindow = createWindow();
     }
   });
 });
