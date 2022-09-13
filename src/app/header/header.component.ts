@@ -18,8 +18,7 @@ export class HeaderComponent implements OnInit {
   constructor(private utilsService: UtilsService, private eventService: EventService) {}
 
   get fileName(): string {
-    const parsedPath = path.parse(this.utilsService.filePath);
-    return parsedPath.name + parsedPath.ext;
+    return path.basename(this.utilsService.filePath);
   }
 
   ngOnInit(): void {

@@ -1,7 +1,9 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import * as chokidar from "chokidar";
 import { ipcRenderer } from "electron";
 import * as fs from "fs";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
+import * as path from "path";
 import { SweetAlertResult } from "sweetalert2";
 import { AlertService } from "../core/alert.service";
 import { EventService } from "../core/event.service";
@@ -17,15 +19,24 @@ export class EditorComponent implements OnInit {
   editorElement!: ElementRef<HTMLElement>;
   editorInstance!: monaco.editor.IStandaloneCodeEditor;
   filePath!: string;
+  fileName!: string;
   fileContentChanged = false;
+  fileWatcher!: chokidar.FSWatcher;
 
   constructor(utilsService: UtilsService, private eventService: EventService, private alertService: AlertService) {
     this.filePath = utilsService.filePath;
+    this.fileName = path.basename(this.filePath);
+    // watch file changes
+    this.fileWatcher = chokidar.watch(path.parse(this.filePath).dir);
+    this.fileWatcher.on("change", (changedPath) => {
+      if (this.fileName !== path.basename(changedPath)) return;
+      if (!this.fileContentChanged) this.reloadFileFromDisk(false, false);
+    });
     // observe tool bar events
     this.eventService.eventObservable.subscribe((event) => {
       switch (event) {
         case "RELOAD_FROM_DISK":
-          this.reloadFileFromDisk();
+          this.reloadFileFromDisk(true, true);
           break;
         case "SAVE_TO_DISK":
           this.saveFileToDisk();
@@ -54,8 +65,6 @@ export class EditorComponent implements OnInit {
     this.editorInstance.onDidChangeModelContent(() => {
       this.fileContentChanged = true;
     });
-    this.editorInstance.addCommand(monaco.KeyCode.Ctrl | monaco.KeyCode.KeyS, this.saveFileToDisk);
-    this.editorInstance.addCommand(monaco.KeyCode.Ctrl | monaco.KeyCode.Space, () => alert("Gotcha"));
   }
 
   editorInitialized() {
@@ -79,23 +88,32 @@ export class EditorComponent implements OnInit {
         enabled: true
       }
     });
+    this.editorInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => this.saveFileToDisk());
   }
 
-  reloadFileFromDisk() {
-    const fileContent = fs.readFileSync(this.filePath, "utf8");
-    this.editorInstance.setValue(fileContent);
+  reloadFileFromDisk(force: boolean, notify: boolean) {
+    const fileContentOnDisk = fs.readFileSync(this.filePath, "utf8");
+    const fileContentOnEditor = this.editorInstance.getValue();
+    if (!force && fileContentOnDisk === fileContentOnEditor) return;
+    this.editorInstance.setValue(fileContentOnDisk);
     this.fileContentChanged = false;
-    this.alertService.info("File reloaded from disk");
+    if (notify) this.alertService.info("File reloaded from disk");
   }
 
   saveFileToDisk() {
-    const fileContent = this.editorInstance.getValue();
-    fs.writeFileSync(this.filePath, fileContent);
-    this.fileContentChanged = false;
-    this.alertService.success("File saved successfully");
+    const fileContentOnDisk = fs.readFileSync(this.filePath, "utf8");
+    const fileContentOnEditor = this.editorInstance.getValue();
+    if (fileContentOnDisk === fileContentOnEditor) {
+      this.alertService.info("Nothing has been changed");
+    } else {
+      fs.writeFileSync(this.filePath, fileContentOnEditor);
+      this.fileContentChanged = false;
+      this.alertService.success("File saved successfully");
+    }
   }
 
   ngOnDestroy() {
+    this.fileWatcher.close();
     this.editorInstance.dispose();
   }
 }
