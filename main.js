@@ -33,7 +33,7 @@ function createWindow() {
     process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
     appWindow.loadURL(`http://localhost:${port}`);
   } else {
-    appWindow.loadFile("./dist/index.html");
+    appWindow.loadFile("./index.html");
   }
 }
 
@@ -61,10 +61,10 @@ app.whenReady().then(() => {
         appWindow.unmaximize();
         appWindow.webContents.send("window", "unmaximize");
         break;
-      case "pin":
+      case "affix":
         isAlwaysOnTop = !isAlwaysOnTop;
         appWindow.setAlwaysOnTop(isAlwaysOnTop);
-        appWindow.webContents.send("window", isAlwaysOnTop ? "pin" : "unpin");
+        appWindow.webContents.send("window", isAlwaysOnTop ? "affix" : "unaffix");
         break;
       case "close":
         appWindow.close();

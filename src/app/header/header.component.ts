@@ -53,7 +53,7 @@ export class HeaderComponent implements OnInit {
    * set window to always on top
    */
   alwaysOnTop(): void {
-    ipcRenderer.invoke("window", "pin");
+    ipcRenderer.invoke("window", "affix");
     this.isAlwaysOnTop = !this.isAlwaysOnTop;
   }
 

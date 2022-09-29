@@ -27,6 +27,7 @@ export class EditorComponent implements OnInit {
     this.filePath = utilsService.filePath;
     this.fileName = path.basename(this.filePath);
     // watch file changes
+    // todo: don't watch file,should reload file if editor get focus
     this.fileWatcher = chokidar.watch(path.parse(this.filePath).dir);
     this.fileWatcher.on("change", (changedPath) => {
       if (this.fileName !== path.basename(changedPath)) return;
